@@ -1,98 +1,99 @@
 # Tote Tracker — Development Phases
 
 ## Phase 0 — Project Setup
-- Create Git repo
-- Add PRD/RDP docs
-- Select stack
-- Docker skeleton
-- Initial commit
+- Create Git repo ✅
+- Add PRD/RDP docs ✅
+- Select stack ✅ (FastAPI)
+- Docker skeleton ✅
+- Initial commit ✅
 
 ---
 
 ## Phase 1 — Database + API Foundation
-- Create schema + migrations
-- Seed admin/member
-- Health endpoint
-- Commit
+- Create schema + migrations ✅
+- Seed admin/member ✅ (admin bootstrap)
+- Health endpoint ✅
+- Commit ✅
 
 ---
 
 ## Phase 2 — Authentication
-- Login endpoint
-- Role permissions
-- Login UI
-- Commit
+- Login endpoint ✅
+- Session cookie auth + guards ✅
+- Role permissions ⏳ (policy defined; enforcement TBD)
+- Login UI ⏳
+- Commit ✅
 
 ---
 
 ## Phase 3 — Locations System
-- CRUD hierarchy
-- Path generation
-- Location picker UI
-- Commit
+- CRUD hierarchy ✅
+- Path generation ✅
+- Location picker UI ⏳
+- Commit ✅
 
 ---
 
 ## Phase 4 — Tote Management + QR
-- Tote CRUD
-- QR generation
-- 2x2 print view
-- Commit
+- Tote CRUD ✅
+- QR generation ✅
+- 2x2 print view ✅
+- Commit ✅
 
 ---
 
 ## Phase 5 — Item Management
-- Item CRUD
-- Optional fields
-- Tote detail UI
-- Commit
+- Item CRUD ✅
+- Optional fields ✅
+- Tote detail UI ⏳
+- Commit ✅
 
 ---
 
 ## Phase 6 — Photos
-- Upload endpoint
-- Multi-photo support
-- Gallery UI
-- Commit
+- Upload endpoint ✅
+- Multi-photo support ✅
+- Gallery UI ⏳
+- Commit ✅
 
 ---
 
 ## Phase 7 — QR Scanning
-- Camera scanner page
-- Tote lookup
-- Commit
+- Camera scanner page ⏳ (basic page scaffolded)
+- Tote lookup ⏳
+- Commit ✅
 
 ---
 
 ## Phase 8 — Fuzzy Search
-- Backend fuzzy query
-- Search UI
-- Commit
+- Backend fuzzy query ✅ (basic ILIKE search)
+- Search UI ⏳
+- Commit ✅
 
 ---
 
 ## Phase 9 — Moves + Audit Logs
-- Audit middleware
-- Item/tote move logging
-- Audit viewer UI
-- Commit
+- Audit middleware ✅
+- Item/tote move logging ⏳
+- Audit viewer UI ⏳
+- Commit ✅ (audit feed endpoint)
 
 ---
 
 ## Phase 10 — Checkout System
-- Checkout fields
-- Checkout/check-in endpoints
-- UI workflow
-- Commit
+- Checkout fields ✅
+- Checkout/check-in endpoints ✅
+- UI workflow ⏳
+- Commit ✅
 
 ---
 
 ## Phase 11 — Polish & Deployment
-- Docker hardening
-- Backup scripts
-- PWA polish
-- Error handling
-- Final commit
+- Docker hardening ⏳
+- Backup scripts ⏳
+- PWA polish ⏳
+- Error handling ⏳
+- Final commit ⏳
 
 ---
 
