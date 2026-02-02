@@ -10,7 +10,7 @@
 ### Backend
 - Node.js (Express) or Python (FastAPI)
 - REST API
-- Simple password auth (no JWT/session)
+- Simple password auth with HTTP-only session cookie (no JWT)
 
 ### Database
 - PostgreSQL
@@ -76,9 +76,6 @@ Indexes:
 - category
 - notes
 - is_checkoutable
-- status
-- checked_out_to
-- due_back_at
 - timestamps
 - archived_at
 
@@ -147,8 +144,8 @@ Indexes:
 ## 3.1 API Outline
 
 ### Auth
-- POST /auth/login
-- POST /auth/logout
+- POST /auth/login (sets session cookie)
+- POST /auth/logout (clears session cookie)
 
 ### Users
 - GET /users
@@ -191,9 +188,16 @@ Indexes:
 
 ## 3.2 Behavior Rules
 - Current checkout = most recent Item_Checkouts row where returned_at is null.
-- Item.status is derived from current checkout (do not store redundant status if possible).
+- Item status is derived from current checkout (do not store redundant status fields on items).
 - Soft-deleted rows are excluded from default queries; Admin can include them via a flag.
 - Audit_Log records create/update/delete/checkout/check-in actions with before/after payloads.
+
+Auth & Permissions:
+- All non-auth endpoints require a valid session cookie.
+- Role checks enforced in route guards or middleware.
+
+Photo Limits:
+- Enforce max file size and max count per item at upload time.
 
 ---
 

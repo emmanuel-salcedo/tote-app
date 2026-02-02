@@ -125,7 +125,6 @@ Garage → Left Wall → Shelf A3
 ### Checkout System
 Fields:
 - Checkoutable?
-- Status
 - Checked Out To
 - Due Date (Optional)
 - Notes
@@ -134,6 +133,9 @@ History:
 - Multiple checkout rows per item
 - Current checkout is the most recent row with no return date
 
+Derived State:
+- Item status is derived from the current checkout (do not store redundant status fields on items)
+
 ### Full Audit Trail
 Logs:
 - Timestamp
@@ -141,6 +143,11 @@ Logs:
 - Action Type
 - Before/After Data
 - Optional Notes
+
+Audit Scope:
+- Create/Update/Archive for locations, totes, items
+- Checkout/Check-in actions
+- Photo upload/delete actions
 
 Visibility:
 - Admin and Member can view audit logs (read-only)
