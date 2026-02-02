@@ -10,7 +10,7 @@
 ### Backend
 - Node.js (Express) or Python (FastAPI)
 - REST API
-- JWT / Session auth
+- Simple password auth (no JWT/session)
 
 ### Database
 - PostgreSQL
@@ -31,12 +31,20 @@
 - role
 - password_hash
 - created_at
+- archived_at
 
 ### Locations
 - id
 - parent_id
 - name
 - path_string
+- archived_at
+
+Constraints:
+- path_string unique (denormalized full path)
+
+Indexes:
+- locations(path_string)
 
 ### Totes
 - id
@@ -45,6 +53,16 @@
 - location_id
 - qr_value
 - created_at
+- archived_at
+
+Constraints:
+- tote_number unique (auto-generated)
+- qr_value unique
+
+Indexes:
+- totes(tote_number)
+- totes(qr_value)
+- totes(location_id)
 
 ### Items
 - id
@@ -58,11 +76,43 @@
 - checked_out_to
 - due_back_at
 - timestamps
+- archived_at
+
+Constraints:
+- name required
+- is_checkoutable default false
+
+Indexes:
+- items(name)
+- items(tote_id)
 
 ### Item_Photos
 - id
 - item_id
 - file_path
+
+Constraints:
+- file_path required
+
+Indexes:
+- item_photos(item_id)
+
+### Item_Checkouts
+- id
+- item_id
+- checked_out_by
+- checked_out_to
+- checked_out_at
+- due_back_at
+- returned_at
+- notes
+
+Constraints:
+- checked_out_at required
+
+Indexes:
+- item_checkouts(item_id)
+- item_checkouts(checked_out_at)
 
 ### Audit_Log
 - id
@@ -73,6 +123,10 @@
 - before_json
 - after_json
 - timestamp
+
+Indexes:
+- audit_log(entity_type, entity_id)
+- audit_log(timestamp)
 
 ---
 
@@ -86,6 +140,57 @@
 
 ---
 
+## 3.1 API Outline
+
+### Auth
+- POST /auth/login
+- POST /auth/logout
+
+### Users
+- GET /users
+- POST /users
+- PATCH /users/:id
+- DELETE /users/:id (soft delete)
+
+### Locations
+- GET /locations
+- POST /locations
+- PATCH /locations/:id
+- DELETE /locations/:id (soft delete)
+
+### Totes
+- GET /totes
+- POST /totes
+- PATCH /totes/:id
+- DELETE /totes/:id (soft delete)
+- GET /totes/:id/items
+
+### Items
+- GET /items
+- POST /items
+- PATCH /items/:id
+- DELETE /items/:id (soft delete)
+
+### Photos
+- POST /items/:id/photos
+- DELETE /items/:id/photos/:photoId
+
+### Checkouts
+- POST /items/:id/checkouts
+- POST /items/:id/checkins
+- GET /items/:id/checkouts
+
+### Audit
+- GET /audit
+
+---
+
+## 3.2 Behavior Rules
+- Current checkout = most recent Item_Checkouts row where returned_at is null.
+- Item.status is derived from current checkout (do not store redundant status if possible).
+- Soft-deleted rows are excluded from default queries; Admin can include them via a flag.
+- Audit_Log records create/update/delete/checkout/check-in actions with before/after payloads.
+
 ## 4. Deployment Plan
 
 ### Docker Stack
@@ -93,6 +198,17 @@ Services:
 - app
 - db (Postgres)
 - uploads volume
+
+### Ports & Volumes
+- app: 3000 (or 8080)
+- db: 5432
+- uploads mounted to NAS path (photos)
+
+### Env Vars
+- DATABASE_URL
+- ADMIN_EMAIL
+- ADMIN_PASSWORD
+- UPLOADS_PATH
 
 ### Remote Access
 - Cloudflare Tunnel or Tailscale
@@ -141,6 +257,10 @@ README.md
 - Weekly DB export
 - Photo folder backup
 - Git repository as code backup
+
+Retention:
+- Keep 4 weekly DB exports
+- Keep 30 days of photos backup snapshots
 
 ---
 

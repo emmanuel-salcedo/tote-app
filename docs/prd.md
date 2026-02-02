@@ -39,6 +39,18 @@ Physical storage totes become disorganized over time. Users forget contents and 
 | Admin  | Full control, manage users, locations, backups |
 | Member | Add/edit items, move totes/items, checkout items |
 
+### Permissions Matrix
+| Action | Admin | Member |
+|--------|:-----:|:------:|
+| Create/Edit/Archive Totes | ✅ | ✅ |
+| Create/Edit/Archive Items | ✅ | ✅ |
+| Move Totes/Items | ✅ | ✅ |
+| Checkout/Check-in Items | ✅ | ✅ |
+| Manage Locations | ✅ | ✅ |
+| Manage Users | ✅ | ❌ |
+| View Audit Logs | ✅ | ✅ |
+| Manage Backups/Settings | ✅ | ❌ |
+
 ---
 
 ## 5. Scope
@@ -52,7 +64,7 @@ Physical storage totes become disorganized over time. Users forget contents and 
 - Multi-photo support
 - Full audit logs
 - Self-hosted deployment
-- Simple password authentication
+- Simple password authentication (no JWT/session)
 
 ### Out of Scope (V1)
 - Public sharing
@@ -65,12 +77,12 @@ Physical storage totes become disorganized over time. Users forget contents and 
 ## 6. Core Features
 
 ### Tote Management
-- Unique numeric ID
+- Auto-generated unique numeric ID
 - Optional tote name
 - Auto QR generation
 - Location assignment
 - 2x2 printable QR label
-- Edit / Archive
+- Edit / Archive (soft delete with archived_at)
 
 ### Item Management
 Fields:
@@ -80,9 +92,10 @@ Fields:
 - Notes (Optional)
 - Multiple Photos (Optional)
 - Checkoutable Toggle (Optional)
+- Archived At (system field)
 
 Capabilities:
-- Add / Edit / Archive
+- Add / Edit / Archive (soft delete with archived_at)
 - Move between totes
 
 ### Search
@@ -97,6 +110,9 @@ Capabilities:
 ### Location System
 Hierarchy:
 Area → Zone → Spot
+
+Implementation:
+- Denormalized full path for fast search
 
 Example:
 Garage → Left Wall → Shelf A3
@@ -114,6 +130,10 @@ Fields:
 - Due Date (Optional)
 - Notes
 
+History:
+- Multiple checkout rows per item
+- Current checkout is the most recent row with no return date
+
 ### Full Audit Trail
 Logs:
 - Timestamp
@@ -121,6 +141,9 @@ Logs:
 - Action Type
 - Before/After Data
 - Optional Notes
+
+Visibility:
+- Admin and Member can view audit logs (read-only)
 
 ---
 
@@ -131,6 +154,27 @@ Logs:
 - Database backups
 - Docker deployment
 - iPhone QR scanning compatibility
+
+### Performance Targets
+- Search results return in under 1 second on a typical home NAS.
+- QR scan to tote detail in under 2 seconds on iPhone Safari.
+
+### Data & Storage Limits
+- Max photo size: 5 MB each.
+- Max photos per item: 10.
+- Soft-deleted records remain queryable by Admin only.
+
+### Search Behavior
+- Matches against item name, tote number/name, location path.
+- Typo tolerance up to 2 edits.
+- Results ranked by (1) item name, (2) tote number, (3) location path.
+
+### Key User Flows
+1. Create Tote: Admin/Member creates tote → system generates unique number + QR → assign location → print label.
+2. Add Item: Add item → select tote → optional photos → save → item visible in tote.
+3. Move Item: Select item → choose new tote/location → save → audit entry created.
+4. Scan QR: Scan → open tote → view items → quick add item.
+5. Checkout: Mark item checkoutable → checkout → item shows status + due date → check-in closes checkout.
 
 ---
 
