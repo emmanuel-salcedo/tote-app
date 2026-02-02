@@ -123,3 +123,14 @@ class ItemCheckoutCreate(BaseModel):
     checked_out_to: str | None = None
     due_back_at: datetime | None = None
     notes: str | None = None
+
+
+class AuditLogOut(BaseModel):
+    id: int
+    actor_user_id: int | None
+    entity_type: str
+    entity_id: int
+    action: str
+    before_json: dict | None
+    after_json: dict | None
+    timestamp: datetime

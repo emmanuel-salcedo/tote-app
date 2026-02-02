@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.auth_routes import router as auth_router
+from app.audit_routes import router as audit_router
 from app.checkout_routes import router as checkout_router
 from app.config import get_settings
 from app.db import ping_db
@@ -47,3 +48,4 @@ app.include_router(tote_router)
 app.include_router(item_router)
 app.include_router(photo_router)
 app.include_router(checkout_router)
+app.include_router(audit_router)

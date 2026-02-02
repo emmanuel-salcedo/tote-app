@@ -4,6 +4,7 @@ from datetime import datetime
 
 from psycopg.rows import dict_row
 
+from app.audit_repo import log_action
 from app.db import get_connection
 
 
@@ -66,6 +67,7 @@ def create_location(name: str, parent_id: int | None) -> dict:
             )
             row = cur.fetchone()
         conn.commit()
+    log_action("location", row["id"], "create", before=None, after=row)
     return row
 
 
@@ -89,10 +91,12 @@ def update_location(location_id: int, name: str | None, parent_id: int | None) -
             )
             row = cur.fetchone()
         conn.commit()
+    log_action("location", row["id"], "update", before=existing, after=row)
     return row
 
 
 def archive_location(location_id: int) -> dict | None:
+    existing = get_location(location_id)
     with get_connection() as conn:
         with conn.cursor(row_factory=dict_row) as cur:
             cur.execute(
@@ -106,4 +110,6 @@ def archive_location(location_id: int) -> dict | None:
             )
             row = cur.fetchone()
         conn.commit()
+    if row:
+        log_action("location", row["id"], "archive", before=existing, after=row)
     return row

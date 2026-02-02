@@ -5,6 +5,7 @@ from datetime import datetime
 
 from psycopg.rows import dict_row
 
+from app.audit_repo import log_action
 from app.config import get_settings
 from app.db import get_connection
 
@@ -38,6 +39,7 @@ def create_item_photo(item_id: int, file_path: str) -> dict:
             )
             row = cur.fetchone()
         conn.commit()
+    log_action("photo", row["id"], "create", before=None, after=row)
     return row
 
 
@@ -54,6 +56,8 @@ def delete_item_photo(photo_id: int) -> dict | None:
             )
             row = cur.fetchone()
         conn.commit()
+    if row:
+        log_action("photo", row["id"], "delete", before=row, after=None)
     return row
 
 

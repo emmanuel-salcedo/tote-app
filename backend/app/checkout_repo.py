@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 
 from psycopg.rows import dict_row
 
+from app.audit_repo import log_action
 from app.db import get_connection
 
 
@@ -71,10 +72,12 @@ def create_checkout(
             )
             row = cur.fetchone()
         conn.commit()
+    log_action("checkout", row["id"], "create", before=None, after=row)
     return row
 
 
 def check_in_item(item_id: int) -> dict | None:
+    existing = get_open_checkout(item_id)
     with get_connection() as conn:
         with conn.cursor(row_factory=dict_row) as cur:
             cur.execute(
@@ -94,4 +97,6 @@ def check_in_item(item_id: int) -> dict | None:
             )
             row = cur.fetchone()
         conn.commit()
+    if row:
+        log_action("checkout", row["id"], "checkin", before=existing, after=row)
     return row

@@ -4,6 +4,7 @@ from datetime import datetime
 
 from psycopg.rows import dict_row
 
+from app.audit_repo import log_action
 from app.db import get_connection
 
 
@@ -60,6 +61,7 @@ def create_tote(tote_name: str | None, location_id: int | None) -> dict:
             )
             row = cur.fetchone()
         conn.commit()
+    log_action("tote", row["id"], "create", before=None, after=row)
     return row
 
 
@@ -82,10 +84,12 @@ def update_tote(tote_id: int, tote_name: str | None, location_id: int | None) ->
             )
             row = cur.fetchone()
         conn.commit()
+    log_action("tote", row["id"], "update", before=existing, after=row)
     return row
 
 
 def archive_tote(tote_id: int) -> dict | None:
+    existing = get_tote(tote_id)
     with get_connection() as conn:
         with conn.cursor(row_factory=dict_row) as cur:
             cur.execute(
@@ -99,4 +103,6 @@ def archive_tote(tote_id: int) -> dict | None:
             )
             row = cur.fetchone()
         conn.commit()
+    if row:
+        log_action("tote", row["id"], "archive", before=existing, after=row)
     return row
