@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.auth import require_session
 from app.item_repo import archive_item, create_item, list_items, update_item
 from app.schemas import ItemCreate, ItemOut, ItemUpdate
 
-router = APIRouter(prefix="/items", tags=["items"])
+router = APIRouter(prefix="/items", tags=["items"], dependencies=[Depends(require_session)])
 
 
 @router.get("", response_model=list[ItemOut])

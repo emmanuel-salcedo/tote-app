@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from app.auth import require_session
 from app.schemas import UserCreate, UserOut
 from app.user_repo import create_user, list_users
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter(prefix="/users", tags=["users"], dependencies=[Depends(require_session)])
 
 
 @router.get("", response_model=list[UserOut])

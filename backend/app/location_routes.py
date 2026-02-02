@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.auth import require_session
 from app.location_repo import archive_location, create_location, list_locations, update_location
 from app.schemas import LocationCreate, LocationOut, LocationUpdate
 
-router = APIRouter(prefix="/locations", tags=["locations"])
+router = APIRouter(prefix="/locations", tags=["locations"], dependencies=[Depends(require_session)])
 
 
 @router.get("", response_model=list[LocationOut])

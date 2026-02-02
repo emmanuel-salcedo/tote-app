@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.auth import require_session
 from app.checkout_repo import check_in_item, create_checkout, get_open_checkout, list_checkouts
 from app.item_repo import get_item
 from app.schemas import ItemCheckoutCreate, ItemCheckoutOut
 
-router = APIRouter(prefix="/items", tags=["checkouts"])
+router = APIRouter(prefix="/items", tags=["checkouts"], dependencies=[Depends(require_session)])
 
 
 @router.get("/{item_id}/checkouts", response_model=list[ItemCheckoutOut])

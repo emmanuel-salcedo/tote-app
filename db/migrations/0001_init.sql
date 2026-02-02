@@ -12,6 +12,15 @@ CREATE TABLE users (
 
 CREATE UNIQUE INDEX users_email_uq ON users(email);
 
+CREATE TABLE sessions (
+  id TEXT PRIMARY KEY,
+  user_id BIGINT NOT NULL REFERENCES users(id),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  expires_at TIMESTAMPTZ NOT NULL
+);
+
+CREATE INDEX sessions_user_id_idx ON sessions(user_id);
+
 CREATE TABLE locations (
   id BIGSERIAL PRIMARY KEY,
   parent_id BIGINT REFERENCES locations(id),

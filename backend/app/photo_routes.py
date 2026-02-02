@@ -3,13 +3,14 @@ from __future__ import annotations
 import os
 import uuid
 
-from fastapi import APIRouter, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, UploadFile
 
+from app.auth import require_session
 from app.item_repo import get_item
 from app.photo_repo import create_item_photo, delete_item_photo, ensure_upload_dir, list_item_photos
 from app.schemas import ItemPhotoOut
 
-router = APIRouter(prefix="/items", tags=["photos"])
+router = APIRouter(prefix="/items", tags=["photos"], dependencies=[Depends(require_session)])
 
 
 @router.get("/{item_id}/photos", response_model=list[ItemPhotoOut])

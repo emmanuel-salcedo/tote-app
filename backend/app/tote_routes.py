@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.auth import require_session
 from app.item_repo import list_items_by_tote
 from app.schemas import ItemOut, ToteCreate, ToteOut, ToteUpdate
 from app.tote_repo import archive_tote, create_tote, list_totes, update_tote
 
-router = APIRouter(prefix="/totes", tags=["totes"])
+router = APIRouter(prefix="/totes", tags=["totes"], dependencies=[Depends(require_session)])
 
 
 @router.get("", response_model=list[ToteOut])
