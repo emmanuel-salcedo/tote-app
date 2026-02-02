@@ -134,3 +134,15 @@ class AuditLogOut(BaseModel):
     before_json: dict | None
     after_json: dict | None
     timestamp: datetime
+
+
+class SearchResultOut(BaseModel):
+    item_id: int
+    item_name: str
+    quantity: int | None
+    category: str | None
+    notes: str | None
+    tote_id: int | None
+    tote_number: int | None
+    tote_name: str | None
+    location_path: str | None

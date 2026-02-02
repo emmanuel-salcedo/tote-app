@@ -10,6 +10,7 @@ from app.location_routes import router as location_router
 from app.photo_routes import router as photo_router
 from app.qr_routes import router as qr_router
 from app.scan_routes import router as scan_router
+from app.search_routes import router as search_router
 from app.tote_routes import router as tote_router
 from app.user_repo import ensure_admin
 from app.user_routes import router as user_router
@@ -53,3 +54,4 @@ app.include_router(checkout_router)
 app.include_router(audit_router)
 app.include_router(qr_router)
 app.include_router(scan_router)
+app.include_router(search_router)
