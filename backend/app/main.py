@@ -1,9 +1,19 @@
 from fastapi import FastAPI
 
+from app.auth_routes import router as auth_router
 from app.config import get_settings
 from app.db import ping_db
+from app.user_repo import ensure_admin
+from app.user_routes import router as user_router
 
 app = FastAPI(title="Tote Tracker API")
+
+
+@app.on_event("startup")
+def startup() -> None:
+    settings = get_settings()
+    if settings.admin_email and settings.admin_password:
+        ensure_admin(settings.admin_email, settings.admin_password)
 
 
 @app.get("/")
@@ -23,3 +33,7 @@ def health() -> dict:
         "status": "ok",
         "db": "ok" if db_ok else "unavailable",
     }
+
+
+app.include_router(auth_router)
+app.include_router(user_router)

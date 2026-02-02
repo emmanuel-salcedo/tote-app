@@ -27,11 +27,15 @@
 
 ### Users
 - id
+- email
 - name
 - role
 - password_hash
 - created_at
 - archived_at
+
+Constraints:
+- email unique
 
 ### Locations
 - id
@@ -191,6 +195,8 @@ Indexes:
 - Soft-deleted rows are excluded from default queries; Admin can include them via a flag.
 - Audit_Log records create/update/delete/checkout/check-in actions with before/after payloads.
 
+---
+
 ## 4. Deployment Plan
 
 ### Docker Stack
@@ -200,7 +206,7 @@ Services:
 - uploads volume
 
 ### Ports & Volumes
-- app: 3000 (or 8080)
+- app: 8000
 - db: 5432
 - uploads mounted to NAS path (photos)
 
