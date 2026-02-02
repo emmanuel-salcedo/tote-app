@@ -31,3 +31,7 @@ yarn-error.log*
 
 # OS generated
 Icon
+
+# Uploads
+uploads/
+backend/uploads/

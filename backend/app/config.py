@@ -19,5 +19,5 @@ def get_settings() -> Settings:
         database_url=os.getenv("DATABASE_URL"),
         admin_email=os.getenv("ADMIN_EMAIL"),
         admin_password=os.getenv("ADMIN_PASSWORD"),
-        uploads_path=os.getenv("UPLOADS_PATH", "/uploads"),
+        uploads_path=os.getenv("UPLOADS_PATH", "uploads"),
     )

@@ -5,6 +5,7 @@ from app.config import get_settings
 from app.db import ping_db
 from app.item_routes import router as item_router
 from app.location_routes import router as location_router
+from app.photo_routes import router as photo_router
 from app.tote_routes import router as tote_router
 from app.user_repo import ensure_admin
 from app.user_routes import router as user_router
@@ -43,3 +44,4 @@ app.include_router(user_router)
 app.include_router(location_router)
 app.include_router(tote_router)
 app.include_router(item_router)
+app.include_router(photo_router)

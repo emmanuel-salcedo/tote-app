@@ -99,3 +99,9 @@ class ItemUpdate(BaseModel):
     category: str | None = None
     notes: str | None = None
     is_checkoutable: bool | None = None
+
+
+class ItemPhotoOut(BaseModel):
+    id: int
+    item_id: int
+    file_path: str
