@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from app.auth_routes import router as auth_router
 from app.audit_routes import router as audit_router
 from app.checkout_routes import router as checkout_router
+from app.errors import register_error_handlers
 from app.config import get_settings
 from app.db import ping_db
 from app.item_routes import router as item_router
@@ -16,8 +17,10 @@ from app.move_routes import router as move_router
 from app.tote_routes import router as tote_router
 from app.user_repo import ensure_admin
 from app.user_routes import router as user_router
+from app.static_routes import router as static_router
 
 app = FastAPI(title="Tote Tracker API")
+register_error_handlers(app)
 
 
 @app.on_event("startup")
@@ -59,3 +62,4 @@ app.include_router(scan_router)
 app.include_router(search_router)
 app.include_router(move_router)
 app.include_router(checkout_ui_router)
+app.include_router(static_router)

@@ -3,10 +3,15 @@ services:
     build: ./backend
     ports:
       - "8000:8000"
-    env_file:
-      - .env
+    environment:
+      DATABASE_URL: postgresql://tote:tote@db:5432/tote
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: changeme
+      UPLOADS_PATH: /uploads
+      MANIFEST_PATH: /app/public/manifest.json
     volumes:
       - uploads:/uploads
+      - ./public:/app/public
     depends_on:
       - db
 
