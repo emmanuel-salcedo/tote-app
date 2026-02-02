@@ -146,3 +146,11 @@ class SearchResultOut(BaseModel):
     tote_number: int | None
     tote_name: str | None
     location_path: str | None
+
+
+class ItemMoveRequest(BaseModel):
+    tote_id: int | None
+
+
+class ToteMoveRequest(BaseModel):
+    location_id: int | None
