@@ -105,3 +105,21 @@ class ItemPhotoOut(BaseModel):
     id: int
     item_id: int
     file_path: str
+
+
+class ItemCheckoutOut(BaseModel):
+    id: int
+    item_id: int
+    checked_out_by: int | None
+    checked_out_to: str | None
+    checked_out_at: datetime
+    due_back_at: datetime | None
+    returned_at: datetime | None
+    notes: str | None
+
+
+class ItemCheckoutCreate(BaseModel):
+    checked_out_by: int | None = None
+    checked_out_to: str | None = None
+    due_back_at: datetime | None = None
+    notes: str | None = None
