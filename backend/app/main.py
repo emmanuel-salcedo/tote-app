@@ -7,6 +7,7 @@ from app.config import get_settings
 from app.db import ping_db
 from app.item_routes import router as item_router
 from app.location_routes import router as location_router
+from app.checkout_ui_routes import router as checkout_ui_router
 from app.photo_routes import router as photo_router
 from app.qr_routes import router as qr_router
 from app.scan_routes import router as scan_router
@@ -57,3 +58,4 @@ app.include_router(qr_router)
 app.include_router(scan_router)
 app.include_router(search_router)
 app.include_router(move_router)
+app.include_router(checkout_ui_router)
