@@ -174,6 +174,30 @@ APP_HTML = """<!doctype html>
       }
       .section { display: none; }
       .section.active { display: block; }
+      .actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .action-btn {
+        border: 1px solid #d7d0c4;
+        background: #fff;
+        color: #253242;
+        border-radius: 8px;
+        padding: 4px 8px;
+        font-size: 0.76rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .action-btn.danger {
+        border-color: #efc9c9;
+        color: #912727;
+        background: #fff4f4;
+      }
+      .empty-row {
+        color: var(--muted);
+        font-style: italic;
+      }
       img.qr {
         border: 1px solid var(--line);
         border-radius: 12px;
@@ -235,11 +259,17 @@ APP_HTML = """<!doctype html>
               <div class="list"><table id="locationsTable"></table></div>
             </div>
             <div class="card span-6">
-              <h2>Totes</h2>
+              <div class="row" style="justify-content: space-between; margin-bottom: 8px;">
+                <h2 style="margin: 0;">Totes</h2>
+                <button id="quickNewToteBtn" class="btn">Create New Tote</button>
+              </div>
               <div class="list"><table id="totesTable"></table></div>
             </div>
             <div class="card span-12">
-              <h2>Items</h2>
+              <div class="row" style="justify-content: space-between; margin-bottom: 8px;">
+                <h2 style="margin: 0;">Items</h2>
+                <button id="quickNewItemBtn" class="btn">Create New Item</button>
+              </div>
               <div class="list"><table id="itemsTable"></table></div>
             </div>
           </div>
@@ -386,6 +416,14 @@ APP_HTML = """<!doctype html>
         return "<tr>" + cols.map((c) => `<th>${c}</th>`).join("") + "</tr>";
       }
 
+      function emptyRow(colspan, message) {
+        return `<tr><td class="empty-row" colspan="${colspan}">${escapeHtml(message)}</td></tr>`;
+      }
+
+      function actionButton(label, action, id, extra = "") {
+        return `<button class="action-btn ${extra}" data-action="${action}" data-id="${id}">${label}</button>`;
+      }
+
       async function api(path, options = {}) {
         const res = await fetch(path, {
           credentials: "same-origin",
@@ -421,43 +459,74 @@ APP_HTML = """<!doctype html>
         $("countTotes").textContent = String(state.totes.length);
         $("countItems").textContent = String(state.items.length);
 
+        const locationById = new Map(state.locations.map((loc) => [loc.id, loc]));
+        const toteById = new Map(state.totes.map((tote) => [tote.id, tote]));
+
         $("locationsTable").innerHTML = [
-          header(["ID", "Name", "Path", "Parent"]),
+          header(["ID", "Name", "Path", "Parent", "Actions"]),
           ...state.locations.map((loc) =>
             row([
               loc.id,
               escapeHtml(loc.name),
               escapeHtml(loc.path_string),
               loc.parent_id ?? "",
+              `<div class="actions">
+                ${actionButton("Edit", "location-edit", loc.id)}
+                ${actionButton("Add New", "location-add", loc.id)}
+              </div>`,
             ])
           ),
+          ...(state.locations.length ? [] : [emptyRow(5, "No locations yet.")]),
         ].join("");
 
         $("totesTable").innerHTML = [
-          header(["ID", "No.", "Name", "Location", "QR"]),
+          header(["ID", "No.", "Name", "Location", "QR", "Actions"]),
           ...state.totes.map((tote) =>
-            row([
-              tote.id,
-              tote.tote_number,
-              escapeHtml(tote.tote_name || ""),
-              tote.location_id ?? "",
-              escapeHtml(tote.qr_value),
-            ])
+            (() => {
+              const loc = tote.location_id ? locationById.get(tote.location_id) : null;
+              const locationLabel = loc
+                ? `#${loc.id} ${escapeHtml(loc.name)}`
+                : tote.location_id ?? "";
+              return row([
+                tote.id,
+                tote.tote_number,
+                escapeHtml(tote.tote_name || ""),
+                locationLabel,
+                escapeHtml(tote.qr_value),
+                `<div class="actions">
+                  ${actionButton("Add", "tote-add", tote.id)}
+                  ${actionButton("Update", "tote-update", tote.id)}
+                </div>`,
+              ]);
+            })()
           ),
+          ...(state.totes.length ? [] : [emptyRow(6, "No totes yet.")]),
         ].join("");
 
         $("itemsTable").innerHTML = [
-          header(["ID", "Name", "Tote", "Qty", "Category", "Status"]),
-          ...state.items.map((item) =>
-            row([
+          header(["ID", "Name", "Tote", "Qty", "Category", "Status", "Actions"]),
+          ...state.items.map((item) => {
+            const tote = item.tote_id ? toteById.get(item.tote_id) : null;
+            const toteLabel = tote
+              ? `#${tote.tote_number} ${escapeHtml(tote.tote_name || "")}`
+              : item.tote_id ?? "";
+            return row([
               item.id,
               escapeHtml(item.name),
-              item.tote_id ?? "",
+              toteLabel,
               item.quantity ?? "",
               escapeHtml(item.category || ""),
               escapeHtml(item.status || ""),
-            ])
-          ),
+              `<div class="actions">
+                ${actionButton("Move", "item-move", item.id)}
+                ${actionButton("Checkout", "item-checkout", item.id)}
+                ${actionButton("Checkin", "item-checkin", item.id)}
+                ${actionButton("Update", "item-update", item.id)}
+                ${actionButton("Archive", "item-archive", item.id, "danger")}
+              </div>`,
+            ]);
+          }),
+          ...(state.items.length ? [] : [emptyRow(7, "No items yet.")]),
         ].join("");
       }
 
@@ -636,6 +705,132 @@ APP_HTML = """<!doctype html>
         setStatus("QR loaded.");
       }
 
+      async function onLocationAction(action, locationId) {
+        if (action === "location-edit") {
+          const current = state.locations.find((loc) => loc.id === locationId);
+          const newName = window.prompt("Location name:", current?.name || "");
+          if (newName === null) return;
+          const parentRaw = window.prompt(
+            "Parent location ID (blank keeps current parent):",
+            current?.parent_id == null ? "" : String(current.parent_id)
+          );
+          if (parentRaw === null) return;
+          const payload = {
+            name: newName.trim() || null,
+            parent_id: parentRaw.trim() === "" ? null : toIntOrNull(parentRaw),
+          };
+          await api(`/locations/${locationId}`, { method: "PATCH", body: JSON.stringify(payload) });
+          await refreshAll();
+          setStatus(`Location ${locationId} updated.`);
+          return;
+        }
+        if (action === "location-add") {
+          const name = window.prompt("New child location name:", "");
+          if (name === null || !name.trim()) return;
+          await api("/locations", {
+            method: "POST",
+            body: JSON.stringify({ name: name.trim(), parent_id: locationId }),
+          });
+          await refreshAll();
+          setStatus(`Added new location under ${locationId}.`);
+        }
+      }
+
+      async function onToteAction(action, toteId) {
+        if (action === "tote-add") {
+          const name = window.prompt("New item name for this tote:", "");
+          if (name === null || !name.trim()) return;
+          const qtyRaw = window.prompt("Quantity (optional):", "1");
+          await api("/items", {
+            method: "POST",
+            body: JSON.stringify({
+              name: name.trim(),
+              tote_id: toteId,
+              quantity: toIntOrNull(qtyRaw || ""),
+            }),
+          });
+          await refreshAll();
+          setStatus(`Added item to tote ${toteId}.`);
+          return;
+        }
+        if (action === "tote-update") {
+          const current = state.totes.find((t) => t.id === toteId);
+          const nextName = window.prompt("Tote name:", current?.tote_name || "");
+          if (nextName === null) return;
+          const nextLocationId = window.prompt(
+            "Location ID (blank keeps current location):",
+            current?.location_id == null ? "" : String(current.location_id)
+          );
+          if (nextLocationId === null) return;
+          const payload = {
+            tote_name: nextName.trim() || null,
+            location_id: nextLocationId.trim() === "" ? null : toIntOrNull(nextLocationId),
+          };
+          await api(`/totes/${toteId}`, { method: "PATCH", body: JSON.stringify(payload) });
+          await refreshAll();
+          setStatus(`Tote ${toteId} updated.`);
+          return;
+        }
+      }
+
+      async function onItemAction(action, itemId) {
+        if (action === "item-checkout") {
+          const checkedOutTo = window.prompt("Checked out to (optional):", "") || null;
+          await api(`/items/${itemId}/checkouts`, {
+            method: "POST",
+            body: JSON.stringify({ checked_out_to: checkedOutTo }),
+          });
+          await refreshAll();
+          setStatus(`Item ${itemId} checked out.`);
+          return;
+        }
+        if (action === "item-move") {
+          const nextToteId = window.prompt("Move item to tote ID (blank clears tote):", "");
+          if (nextToteId === null) return;
+          const payload = { tote_id: toIntOrNull(nextToteId) };
+          await api(`/moves/items/${itemId}`, { method: "POST", body: JSON.stringify(payload) });
+          await refreshAll();
+          setStatus(`Item ${itemId} moved.`);
+          return;
+        }
+        if (action === "item-checkin") {
+          await api(`/items/${itemId}/checkins`, { method: "POST", body: "{}" });
+          await refreshAll();
+          setStatus(`Item ${itemId} checked in.`);
+          return;
+        }
+        if (action === "item-update") {
+          const current = state.items.find((i) => i.id === itemId);
+          if (!current) return;
+          const name = window.prompt("Item name:", current.name || "");
+          if (name === null) return;
+          const qtyRaw = window.prompt(
+            "Quantity (blank keeps current):",
+            current.quantity == null ? "" : String(current.quantity)
+          );
+          if (qtyRaw === null) return;
+          const category = window.prompt("Category (blank keeps current):", current.category || "");
+          if (category === null) return;
+          await api(`/items/${itemId}`, {
+            method: "PATCH",
+            body: JSON.stringify({
+              name: name.trim() || null,
+              quantity: qtyRaw.trim() === "" ? null : toIntOrNull(qtyRaw),
+              category: category.trim() || null,
+            }),
+          });
+          await refreshAll();
+          setStatus(`Item ${itemId} updated.`);
+          return;
+        }
+        if (action === "item-archive") {
+          if (!window.confirm(`Archive item ${itemId}?`)) return;
+          await api(`/items/${itemId}`, { method: "DELETE" });
+          await refreshAll();
+          setStatus(`Item ${itemId} archived.`);
+        }
+      }
+
       function bindActions() {
         $("loginBtn").addEventListener("click", onLogin);
         $("logoutBtn").addEventListener("click", onLogout);
@@ -652,9 +847,9 @@ APP_HTML = """<!doctype html>
           btn.addEventListener("click", () => switchSection(btn.dataset.section));
         });
 
-        const guarded = (fn) => async () => {
+        const guarded = (fn) => async (...args) => {
           try {
-            await fn();
+            await fn(...args);
           } catch (err) {
             setStatus(err.message || String(err), true);
           }
@@ -670,6 +865,32 @@ APP_HTML = """<!doctype html>
         $("checkinBtn").addEventListener("click", guarded(checkinItem));
         $("loadAuditBtn").addEventListener("click", guarded(loadAudit));
         $("loadQrBtn").addEventListener("click", guarded(async () => loadQr()));
+        $("quickNewToteBtn").addEventListener("click", () => {
+          switchSection("create");
+          $("newToteName").focus();
+        });
+        $("quickNewItemBtn").addEventListener("click", () => {
+          switchSection("create");
+          $("newItemName").focus();
+        });
+
+        $("totesTable").addEventListener("click", guarded(async (event) => {
+          const target = event.target.closest("[data-action][data-id]");
+          if (!target) return;
+          await onToteAction(target.dataset.action, Number(target.dataset.id));
+        }));
+
+        $("locationsTable").addEventListener("click", guarded(async (event) => {
+          const target = event.target.closest("[data-action][data-id]");
+          if (!target) return;
+          await onLocationAction(target.dataset.action, Number(target.dataset.id));
+        }));
+
+        $("itemsTable").addEventListener("click", guarded(async (event) => {
+          const target = event.target.closest("[data-action][data-id]");
+          if (!target) return;
+          await onItemAction(target.dataset.action, Number(target.dataset.id));
+        }));
       }
 
       async function init() {
