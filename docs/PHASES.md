@@ -21,7 +21,7 @@
 - Login endpoint ✅
 - Session cookie auth + guards ✅
 - Role permissions ⏳ (policy defined; enforcement TBD)
-- Login UI ⏳
+- Login UI ✅ (basic web app login page)
 - Commit ✅
 
 ---
@@ -67,7 +67,7 @@
 
 ## Phase 8 — Fuzzy Search
 - Backend fuzzy query ✅ (basic ILIKE search)
-- Search UI ⏳
+- Search UI ✅ (web app search tab)
 - Commit ✅
 
 ---
@@ -75,7 +75,7 @@
 ## Phase 9 — Moves + Audit Logs
 - Audit middleware ✅
 - Item/tote move logging ✅
-- Audit viewer UI ⏳
+- Audit viewer UI ✅ (web app audit tab)
 - Commit ✅
 
 ---
@@ -93,7 +93,7 @@
 - Backup scripts ✅ (stub)
 - PWA polish ✅ (manifest route)
 - Error handling ✅ (global handler)
-- Final commit ⏳
+- Final commit ✅
 
 ---
 

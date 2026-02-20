@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 
 from app.auth_routes import router as auth_router
@@ -18,16 +20,19 @@ from app.tote_routes import router as tote_router
 from app.user_repo import ensure_admin
 from app.user_routes import router as user_router
 from app.static_routes import router as static_router
-
-app = FastAPI(title="Tote Tracker API")
-register_error_handlers(app)
+from app.frontend_routes import router as frontend_router
 
 
-@app.on_event("startup")
-def startup() -> None:
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
     settings = get_settings()
     if settings.admin_email and settings.admin_password:
         ensure_admin(settings.admin_email, settings.admin_password)
+    yield
+
+
+app = FastAPI(title="Tote Tracker API", lifespan=lifespan)
+register_error_handlers(app)
 
 
 @app.get("/")
@@ -63,3 +68,4 @@ app.include_router(search_router)
 app.include_router(move_router)
 app.include_router(checkout_ui_router)
 app.include_router(static_router)
+app.include_router(frontend_router)

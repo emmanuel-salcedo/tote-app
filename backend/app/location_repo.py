@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from psycopg.rows import dict_row
 
@@ -106,7 +106,7 @@ def archive_location(location_id: int) -> dict | None:
                 WHERE id = %s AND archived_at IS NULL
                 RETURNING id, parent_id, name, path_string, archived_at
                 """,
-                (datetime.utcnow(), location_id),
+                (datetime.now(timezone.utc), location_id),
             )
             row = cur.fetchone()
         conn.commit()

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from psycopg.rows import dict_row
 
@@ -99,7 +99,7 @@ def archive_tote(tote_id: int) -> dict | None:
                 WHERE id = %s AND archived_at IS NULL
                 RETURNING id, tote_number, tote_name, location_id, qr_value, created_at, archived_at
                 """,
-                (datetime.utcnow(), tote_id),
+                (datetime.now(timezone.utc), tote_id),
             )
             row = cur.fetchone()
         conn.commit()

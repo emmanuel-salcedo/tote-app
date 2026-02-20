@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from psycopg.rows import dict_row
 
@@ -125,7 +125,7 @@ def update_item(
                     new_category,
                     new_notes,
                     new_is_checkoutable,
-                    datetime.utcnow(),
+                    datetime.now(timezone.utc),
                     item_id,
                 ),
             )
@@ -147,7 +147,7 @@ def archive_item(item_id: int) -> dict | None:
                 RETURNING id, tote_id, name, quantity, category, notes, is_checkoutable,
                           status, checked_out_to, due_back_at, created_at, updated_at, archived_at
                 """,
-                (datetime.utcnow(), item_id),
+                (datetime.now(timezone.utc), item_id),
             )
             row = cur.fetchone()
         conn.commit()
