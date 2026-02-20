@@ -59,7 +59,7 @@
 ---
 
 ## Phase 7 — QR Scanning
-- Camera scanner page ⏳ (basic page scaffolded)
+- Camera scanner page ✅ (basic page scaffolded)
 - Tote lookup ⏳
 - Commit ✅
 
@@ -74,25 +74,25 @@
 
 ## Phase 9 — Moves + Audit Logs
 - Audit middleware ✅
-- Item/tote move logging ⏳
+- Item/tote move logging ✅
 - Audit viewer UI ⏳
-- Commit ✅ (audit feed endpoint)
+- Commit ✅
 
 ---
 
 ## Phase 10 — Checkout System
 - Checkout fields ✅
 - Checkout/check-in endpoints ✅
-- UI workflow ⏳
+- UI workflow ✅ (basic UI stub)
 - Commit ✅
 
 ---
 
 ## Phase 11 — Polish & Deployment
-- Docker hardening ⏳
-- Backup scripts ⏳
-- PWA polish ⏳
-- Error handling ⏳
+- Docker hardening ✅ (non-root container)
+- Backup scripts ✅ (stub)
+- PWA polish ✅ (manifest route)
+- Error handling ✅ (global handler)
 - Final commit ⏳
 
 ---
